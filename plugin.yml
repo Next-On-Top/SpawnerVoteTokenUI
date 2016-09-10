@@ -1,6 +1,13 @@
-name: VoteToken GUI Spawner
-version:1.0
-description:Provides a shop for VoteTokn
+name: SpawnerVTGUI
+version: 1.0
+description: Provides a shop for VoteTokn
 author: [nayoshi12,zLokkiN]
 main: com.kyloka.voteTokenUI.main
-
+commands:
+  vtdebug:
+    description: Debug command to test if your command works
+    aliases: [votetokendebug,vtokendebug,votetdebug,vtdb,vtofkhazix]
+  rng:
+    description: hey
+  balvote:
+    description: a way to check your balance
