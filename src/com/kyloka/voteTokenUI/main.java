@@ -2,7 +2,9 @@ package com.kyloka.voteTokenUI;
 
 
 
+import com.avaje.ebean.LogLevel;
 import com.kyloka.voteTokenUI.references.essentialNames;
+import de.dustplanet.silkspawners.SilkSpawners;
 import javafx.scene.control.Alert;
 
 import org.bukkit.Bukkit;
@@ -11,12 +13,14 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.craftbukkit.libs.jline.internal.Log;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
+import java.util.logging.Level;
 
 
 public class main extends JavaPlugin{
@@ -35,12 +39,24 @@ public class main extends JavaPlugin{
 	public void onEnable() {
 		PluginManager pm = this.getServer().getPluginManager();
 		registerConfigs();
+		if (pm.getPlugin("SilkSpawners") == null){
+			getLogger().log(Level.WARNING,"SilkSpawners is not installed, VTSpawnerGUI is disabled");
+			pm.disablePlugin(this);
 
+		}
 	}
 
 	@Override
 	public void onDisable() {
 
+	}
+	public boolean dependency(){
+		PluginManager pm = this.getServer().getPluginManager();
+
+
+
+
+		return false;
 	}
 	public static ItemStack voteTokenItem() throws NullPointerException{
 

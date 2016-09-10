@@ -3,6 +3,7 @@ version: 1.0
 description: Provides a shop for VoteTokn
 author: [nayoshi12,zLokkiN]
 main: com.kyloka.voteTokenUI.main
+softdepend: [SilkSpawners]
 commands:
   vtdebug:
     description: Debug command to test if your command works
