@@ -15,5 +15,5 @@ public class essentialNames {
             "Guardian","Squid","Villager","Horse","Polar Bear","Dog","Chicken","Ocelot","Rabbit","Pig","Sheep","Cow","Mooshroom"};
     public static EntityType[] entityNames = {EntityType.SPIDER,EntityType.CREEPER,EntityType.CAVE_SPIDER,EntityType.SKELETON,EntityType.ZOMBIE,EntityType.SLIME,EntityType.PIG_ZOMBIE,EntityType.ENDERMAN, EntityType.BLAZE,EntityType.MAGMA_CUBE,EntityType.GHAST,EntityType.WITCH,EntityType.ENDERMITE,
             EntityType.GUARDIAN,EntityType.SQUID,EntityType.VILLAGER,EntityType.HORSE,EntityType.POLAR_BEAR,EntityType.WOLF,EntityType.CHICKEN,EntityType.OCELOT,EntityType.RABBIT,EntityType.PIG,EntityType.SHEEP,EntityType.COW,EntityType.MUSHROOM_COW};
-
+    public static int[] itemSlot = {0,1,2,9,10,11,18,19,20,27,28,29,36,6,7,8,15,16,17,24,25,26,33,34,35,44};
 }

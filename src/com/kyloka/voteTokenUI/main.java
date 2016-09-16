@@ -4,10 +4,12 @@ package com.kyloka.voteTokenUI;
 
 import com.avaje.ebean.LogLevel;
 import com.kyloka.voteTokenUI.references.essentialNames;
+import com.kyloka.voteTokenUI.references.itemsGUI;
 import de.dustplanet.silkspawners.SilkSpawners;
 import javafx.scene.control.Alert;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -15,11 +17,15 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.craftbukkit.libs.jline.internal.Log;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 
 
@@ -60,20 +66,29 @@ public class main extends JavaPlugin{
 	}
 	public static ItemStack voteTokenItem() throws NullPointerException{
 
-			String test = main.getConfigConfig().getString("main.voteToken.item").replace(" ", "_");
+		String test = main.getConfigConfig().getString("main.voteToken.item").replace(" ", "_");
 
-			Material string2Material = Material.matchMaterial(test);
-			ItemStack voteToken = new ItemStack(string2Material);
+		Material string2Material = Material.matchMaterial(test);
+		ItemStack voteToken = new ItemStack(string2Material);
+		ItemMeta voteTokenMeta = voteToken.getItemMeta();
+		voteTokenMeta.setDisplayName(format(getConfigConfig().getString("main.voteToken.name")));
+		List <String> ayy = getConfigConfig().getStringList("main.voteToken.lore");
+		if (getConfigConfig().getStringList("main.voteToken.lore") == null){
 
-			return voteToken;
+		}
+
+		else{
+			voteTokenMeta.setLore(formatList(ayy));
+		}
+		voteToken.setItemMeta(voteTokenMeta);
+		return voteToken;
 	}
 	public static int getSpawnerPrice(String mobName){
-		Bukkit.broadcastMessage("ohai");
+
 		int price = 0;
 		for (int i=0; i < essentialNames.nameSpawn.length;i++){
-			Bukkit.broadcastMessage("hai");
-			if (essentialNames.nameSpawn[i].equals(mobName)){
-				Bukkit.broadcastMessage("ohi");
+			if (essentialNames.nameSpawn[i].equalsIgnoreCase(mobName)){
+
 				try {
 					price = getPricesConfig().getInt("main.voteToken.price." + essentialNames.nameSpawn[i]);
 					return price;
@@ -91,6 +106,7 @@ public class main extends JavaPlugin{
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+
 		if (command.getName().equalsIgnoreCase("vtdebug")) {
 			if (!(sender instanceof Player)) {
 				sender.sendMessage("Command cannot be performed in console");
@@ -99,7 +115,8 @@ public class main extends JavaPlugin{
 				Player target = (Player) sender;
 				try {
 					target.getInventory().addItem(voteTokenItem());
-					target.sendMessage(getPricesConfig().get("main.voteToken.price.Blaze")+ "");
+					target.sendMessage(getSpawnerPrice("Witch") + "");
+					target.sendMessage(format("&6What is up bitches?!?"));
 
 				}
 				catch(NullPointerException e ){
@@ -110,7 +127,7 @@ public class main extends JavaPlugin{
 					target.sendMessage(getPricesConfig().get("main.voteToken.price.Zombie Pigman")+ "");
 			}
 			else{
-				sender.sendMessage("You don't have permission to access this command");
+				sender.sendMessage(ChatColor.RED + "You don't have permission to access this command");
 			}
 		}
 		if (command.getName().equalsIgnoreCase("balVote")){
@@ -122,9 +139,32 @@ public class main extends JavaPlugin{
 
 		}
 		if (command.getName().equalsIgnoreCase("rng")){
+			if (!(sender instanceof Player)){
+				return true;
+			}
+			Player target = (Player) sender;
+			Inventory inv = Bukkit.createInventory(null,45,ChatColor.AQUA + "VoteToken");
+			/*for(int i = 0; i<itemsGUI.guiItems(target).indexOf(); i++){
+				if (itemsGUI.guiItems(target).get(i) == null){
+				}
+				else {
+					inv.setItem(i, itemsGUI.guiItems(target).get(i));
+				}
+			}*/
+			ItemStack placeholder = new ItemStack(Material.STAINED_GLASS_PANE,1,(byte) 8);
+			List <ItemStack> itemsD;
+			itemsD = itemsGUI.guiItems(target);
+			for (int i = 0; i < 45; i++){
+				if(itemsD.get(i) == null){
+					itemsD.set(i,placeholder);
 
+				}
+				inv.setItem(i,itemsD.get(i));
+			}
+			itemsD = itemsGUI.guiItems(target);
 
-
+			target.sendMessage(""+ itemsGUI.guiItems(target).size());
+			target.openInventory(inv);
 		}
 
 
@@ -170,12 +210,14 @@ public class main extends JavaPlugin{
 					getLogger().info(Alert.AlertType.ERROR + "Unable to create plugin configuration folder!");
 				}
 			}
-
+			List <String> defaultLore = new ArrayList<String>();
+			defaultLore.add(0,"&5Thanks for voting!");
 			try {
 					configFile.createNewFile();
-					configConfig.set("main.voteToken.price",96);
+					configConfig.set("main.voteToken.name","&4&ka&r &eVoteToken &4&ka&r");
 					configConfig.set("main.voteToken.item","bedrock");
 					configConfig.set("main.version",1.0);
+				    configConfig.set("main.voteToken.lore",defaultLore);
 
 				}
 				catch(Exception e){
@@ -238,6 +280,32 @@ public class main extends JavaPlugin{
 		}
 		return priceConfig;
 
+	}
+	public static FileConfiguration getPlayerDataConfig(){
+		playerDataConfig = new YamlConfiguration();
+		if(playerDataConfig == null){
+			return null;
+		}
+
+		try{
+			playerDataConfig.load(playerDataFile);
+		}
+		catch(Exception e){}
+		return playerDataConfig;
+	}
+
+	public static String format(String form1){
+		String form2 = form1.replace("&","§");
+		return form2;
+	}
+	public static List<String> formatList(List<String> form1){
+		List<String> form2 = new ArrayList<String>();
+		for(int i=0;i <form1.size();i++){
+			String form3 = form1.get(i).replace("&","§");
+			form2.add(i,form3);
+
+		}
+		return form2;
 	}
 }
 
