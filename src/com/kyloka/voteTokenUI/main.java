@@ -2,10 +2,10 @@ package com.kyloka.voteTokenUI;
 
 
 
-import com.avaje.ebean.LogLevel;
+import com.kyloka.voteTokenUI.events.inventoryClickEvent;
+import com.kyloka.voteTokenUI.gui.openUI;
 import com.kyloka.voteTokenUI.references.essentialNames;
-import com.kyloka.voteTokenUI.references.itemsGUI;
-import de.dustplanet.silkspawners.SilkSpawners;
+import com.kyloka.voteTokenUI.gui.itemsGUI;
 import javafx.scene.control.Alert;
 
 import org.bukkit.Bukkit;
@@ -15,7 +15,6 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.craftbukkit.libs.jline.internal.Log;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -50,6 +49,7 @@ public class main extends JavaPlugin{
 			pm.disablePlugin(this);
 
 		}
+		pm.registerEvents(new inventoryClickEvent(),this);
 	}
 
 	@Override
@@ -107,7 +107,7 @@ public class main extends JavaPlugin{
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
-		if (command.getName().equalsIgnoreCase("vtdebug")) {
+		if (command.getName().equalsIgnoreCase("vtdebug") && sender.isOp()) {
 			if (!(sender instanceof Player)) {
 				sender.sendMessage("Command cannot be performed in console");
 			}
@@ -130,15 +130,19 @@ public class main extends JavaPlugin{
 				sender.sendMessage(ChatColor.RED + "You don't have permission to access this command");
 			}
 		}
-		if (command.getName().equalsIgnoreCase("balVote")){
+		if(command.getName().equalsIgnoreCase("vtdebug") && !sender.isOp()){
+			sender.sendMessage(ChatColor.RED + "Only operators can access the command");
+			return false;
+		}
+		if (command.getName().equalsIgnoreCase("vtbal")){
 
-			sender.sendMessage("§6[§4VoteTokenBalance§6]§f: §c" + main.playerDataConfig.getInt("main." + sender.getName() + ".voteTokenCount"));
+			sender.sendMessage("§6[§4VoteTokenBalance§6]§f: §c" + main.getPlayerDataConfig().getInt("main."+sender.getName()+".voteTokenCount"));
 
 			return true;
 
 
 		}
-		if (command.getName().equalsIgnoreCase("rng")){
+		if (command.getName().equalsIgnoreCase("vtgui")){
 			if (!(sender instanceof Player)){
 				return true;
 			}
@@ -151,22 +155,34 @@ public class main extends JavaPlugin{
 					inv.setItem(i, itemsGUI.guiItems(target).get(i));
 				}
 			}*/
-			ItemStack placeholder = new ItemStack(Material.STAINED_GLASS_PANE,1,(byte) 8);
-			List <ItemStack> itemsD;
-			itemsD = itemsGUI.guiItems(target);
-			for (int i = 0; i < 45; i++){
-				if(itemsD.get(i) == null){
-					itemsD.set(i,placeholder);
 
-				}
-				inv.setItem(i,itemsD.get(i));
-			}
-			itemsD = itemsGUI.guiItems(target);
 
-			target.sendMessage(""+ itemsGUI.guiItems(target).size());
-			target.openInventory(inv);
+
+			openUI.open(target);
 		}
+		if(command.getName().equalsIgnoreCase("vtgive") && sender.isOp()){
+			if (!(sender instanceof Player)){
+				return false;
+			}
+			Player player = (Player) sender;
+			if (args.length == 0){
+				player.getInventory().addItem(main.voteTokenItem());
+				return true;
+			}
+			else{
+				ItemStack v1 = main.voteTokenItem();
+				int arg2Int = Integer.valueOf(args[0]);
+				v1.setAmount(arg2Int);
+				player.getInventory().addItem(v1);
+				return true;
+			}
 
+
+		}
+		if(command.getName().equalsIgnoreCase("vtgive") && !sender.isOp()){
+			sender.sendMessage(ChatColor.RED + "Only operators can access the command");
+			return false;
+		}
 
 		return false;
 	}
@@ -185,11 +201,17 @@ public class main extends JavaPlugin{
 		if(!playerDataFile.exists()){
 			try {
 				playerDataFile.createNewFile();
-
+				playerDataConfig.save(playerDataFile);
 
 			}catch(Exception e){
 
 			}
+			getLogger().info("New Player Data Files Created!");
+			return;
+		}
+		else{
+			getLogger().info("Player Config Loaded!");
+			return;
 		}
 	}
 	public void loadconfigConfig(){
